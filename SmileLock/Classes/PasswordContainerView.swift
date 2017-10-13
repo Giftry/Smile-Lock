@@ -217,7 +217,7 @@ private extension PasswordContainerView {
             strokeColor = tintColor
             fillColor = highlightedColor
             //input view
-            circleBackgroundColor = whiteColor
+            circleBackgroundColor = backgroundColor
             highlightBackgroundColor = highlightedColor
             borderColor = tintColor
             textColor = tintColor
