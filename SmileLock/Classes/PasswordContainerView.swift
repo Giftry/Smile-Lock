@@ -66,6 +66,24 @@ open class PasswordContainerView: UIView {
             }
         }
     }
+  
+  open var circleBackgroundColor: UIColor! {
+    didSet {
+      guard !isVibrancyEffect else { return }
+      passwordInputViews.forEach {
+        $0.circleBackgroundColor = circleBackgroundColor
+      }
+    }
+  }
+  
+  open var circleBorderColor: UIColor! {
+    didSet {
+      guard !isVibrancyEffect else { return }
+      passwordInputViews.forEach {
+        $0.circleView.layer.borderColor = circleBorderColor.cgColor
+      }
+    }
+  }
     
     open var isTouchAuthenticationAvailable: Bool {
         return touchIDContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
@@ -217,7 +235,7 @@ private extension PasswordContainerView {
             strokeColor = tintColor
             fillColor = highlightedColor
             //input view
-            circleBackgroundColor = backgroundColor
+            circleBackgroundColor = self.circleBackgroundColor
             highlightBackgroundColor = highlightedColor
             borderColor = tintColor
             textColor = tintColor
@@ -234,7 +252,7 @@ private extension PasswordContainerView {
             passwordInputView.textColor = textColor
             passwordInputView.highlightTextColor = highlightTextColor
             passwordInputView.highlightBackgroundColor = highlightBackgroundColor
-            passwordInputView.circleView.layer.borderColor = UIColor.white.cgColor
+            passwordInputView.circleView.layer.borderColor = circleBorderColor.cgColor
             //borderWidth as a flag, will recalculate in PasswordInputView.updateUI()
             passwordInputView.isVibrancyEffect = isVibrancyEffect
         }
