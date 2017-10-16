@@ -66,6 +66,24 @@ open class PasswordContainerView: UIView {
             }
         }
     }
+  
+  open var circleBackgroundColor: UIColor! {
+    didSet {
+      guard !isVibrancyEffect else { return }
+      passwordInputViews.forEach {
+        $0.circleBackgroundColor = circleBackgroundColor
+      }
+    }
+  }
+  
+  open var circleBorderColor: UIColor! {
+    didSet {
+      guard !isVibrancyEffect else { return }
+      passwordInputViews.forEach {
+        $0.circleView.layer.borderColor = circleBorderColor.cgColor
+      }
+    }
+  }
     
     open var isTouchAuthenticationAvailable: Bool {
         return touchIDContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
