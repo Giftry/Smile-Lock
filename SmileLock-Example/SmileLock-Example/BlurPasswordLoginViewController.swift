@@ -35,5 +35,17 @@ class BlurPasswordLoginViewController: UIViewController {
         passwordUIValidation.view.rearrangeForVisualEffectView(in: self)
         
         passwordUIValidation.view.deleteButtonLocalizedTitle = "smilelock_delete"
+        
+        // customize font
+//        for inputView in passwordUIValidation.view.passwordInputViews {
+//             inputView.labelFont = UIFont(name: "Chalkduster", size: 29)
+//        }
     }
+    
+//    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//
+//        // manually initiate biometric authentication
+//        self.passwordUIValidation.view.touchAuthentication()
+//    }
 }

@@ -19,10 +19,11 @@ open class PasswordInputView: UIView {
     
     let circleView = UIView()
     let button = UIButton()
-    open let label = UILabel()
+    public let label = UILabel()
+    open var labelFont: UIFont?
     fileprivate let fontSizeRatio: CGFloat = 46 / 40
     fileprivate let borderWidthRatio: CGFloat = 1 / 26
-    fileprivate var touchUpFlag = false
+    fileprivate var touchUpFlag = true
     fileprivate(set) open var isAnimating = false
     var isVibrancyEffect = false
     
@@ -62,10 +63,12 @@ open class PasswordInputView: UIView {
     
     //MARK: Life Cycle
     #if TARGET_INTERFACE_BUILDER
-    override public func willMoveToSuperview(newSuperview: UIView?) {
+    open override func prepareForInterfaceBuilder() {
+        super.prepareForInterfaceBuilder()
         configureSubviews()
     }
     #else
+
     override open func awakeFromNib() {
         super.awakeFromNib()
         configureSubviews()
@@ -96,6 +99,18 @@ open class PasswordInputView: UIView {
         updateUI()
     }
     
+    fileprivate func getLabelFont() -> UIFont {
+        if labelFont != nil {
+            return labelFont!
+        }
+        
+        let width = bounds.width
+        let height = bounds.height
+        let radius = min(width, height) / 2
+        return UIFont.systemFont(ofSize: radius * fontSizeRatio,
+                                 weight: touchUpFlag ? UIFont.Weight.thin : UIFont.Weight.regular)
+    }
+    
     fileprivate func updateUI() {
         //prepare calculate
         let width = bounds.width
@@ -107,7 +122,9 @@ open class PasswordInputView: UIView {
         
         //update label
         label.text = numberString
-        label.font = UIFont.systemFont(ofSize: radius * fontSizeRatio, weight: UIFont.Weight.thin)
+        
+        label.font = getLabelFont()
+        
         label.textColor = textColor
         
         //update circle view
@@ -137,18 +154,19 @@ private extension PasswordInputView {
         //configure label
         NSLayoutConstraint.addEqualConstraintsFromSubView(label, toSuperView: self)
         label.textAlignment = .center
+        label.isAccessibilityElement = false
         
         //configure button
         NSLayoutConstraint.addEqualConstraintsFromSubView(button, toSuperView: self)
         button.isExclusiveTouch = true
         button.addTarget(self, action: #selector(PasswordInputView.touchDown), for: [.touchDown])
         button.addTarget(self, action: #selector(PasswordInputView.touchUp), for: [.touchUpInside, .touchDragOutside, .touchCancel, .touchDragExit])
+        button.accessibilityValue = numberString
     }
     
     //MARK: Animation
     func touchDownAction() {
-        let originFont = label.font
-        label.font = UIFont.systemFont(ofSize: originFont!.pointSize, weight: UIFont.Weight.light)
+        label.font = getLabelFont()
         label.textColor = highlightTextColor
         if !self.isVibrancyEffect {
             backgroundColor = highlightBackgroundColor
@@ -157,8 +175,7 @@ private extension PasswordInputView {
     }
     
     func touchUpAction() {
-        let originFont = label.font
-        label.font = UIFont.systemFont(ofSize: originFont!.pointSize, weight: UIFont.Weight.thin)
+        label.font = getLabelFont()
         label.textColor = textColor
         backgroundColor = borderColor
         circleView.backgroundColor = circleBackgroundColor

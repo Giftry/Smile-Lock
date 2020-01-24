@@ -52,7 +52,7 @@ open class PasswordContainerView: UIView {
     open override var tintColor: UIColor! {
         didSet {
             guard !isVibrancyEffect else { return }
-            deleteButton.setTitleColor(tintColor, for: UIControlState())
+            deleteButton.setTitleColor(tintColor, for: .normal)
             passwordDotView.strokeColor = tintColor
             touchAuthenticationButton.tintColor = tintColor
             passwordInputViews.forEach {
@@ -159,8 +159,17 @@ open class PasswordContainerView: UIView {
         deleteButton.titleLabel?.adjustsFontSizeToFitWidth = true
         deleteButton.titleLabel?.minimumScaleFactor = 0.5
         touchAuthenticationEnabled = true
-        let image = touchAuthenticationButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
-        touchAuthenticationButton.setImage(image, for: UIControlState())
+        
+        var image = touchAuthenticationButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
+        
+        if #available(iOS 11, *) {
+            if touchIDContext.biometryType == .faceID {
+                let bundle = Bundle(for: type(of: self))
+                image = UIImage(named: "faceid", in: bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            }
+        }
+        
+        touchAuthenticationButton.setImage(image, for: .normal)
         touchAuthenticationButton.tintColor = tintColor
     }
     
@@ -191,6 +200,10 @@ open class PasswordContainerView: UIView {
     }
     
     @IBAction func touchAuthenticationAction(_ sender: UIButton) {
+        touchAuthentication()
+    }
+    
+    open func touchAuthentication() {
         guard isTouchAuthenticationAvailable else { return }
         touchIDContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: touchAuthenticationReason) { (success, error) in
             DispatchQueue.main.async {
@@ -199,7 +212,11 @@ open class PasswordContainerView: UIView {
                     // instantiate LAContext again for avoiding the situation that PasswordContainerView stay in memory when authenticate successfully
                     self.touchIDContext = LAContext()
                 }
-                self.delegate?.touchAuthenticationComplete(self, success: success, error: error)
+                
+                // delay delegate callback for the user can see passwordDotView input dots filled animation
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.delegate?.touchAuthenticationComplete(self, success: success, error: error)
+                }
             }
         }
     }
